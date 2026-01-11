@@ -5,20 +5,21 @@ import sys
 
 def run(host):
     nm = nmap.PortScanner()
-    result = nm.scan(host, arguments='-n -Pn --open --top-ports 500 -O -T4 -sV')
+    result = nm.scan(host, arguments='-n -Pn --open --top-ports 500 -T4 -sV')
     if len(result["scan"].keys()) == 0:
         print("Service Scan error")
         sys.exit(1)
     nhost = list(result["scan"].keys())[0]
     try:
         osname = result["scan"][nhost]["osmatch"][0]["osclass"][0]["vendor"].lower()
+        osmatch = result["scan"][nhost]["osmatch"][0]["name"]
     except Exception:
-        print("Service Scan error")
-        sys.exit(1)
+        osname = "unknown"
+        osmatch = "unknown"
 
     output = {"scanstats_elapsed": result["nmap"]["scanstats"]["elapsed"],
               "ports": list(result["scan"][nhost]["tcp"].keys()),
-              "osmatch": result["scan"][nhost]["osmatch"][0]["name"],
+              "osmatch": osmatch,
               "osname": osname,
               "service_details": {}
               }

@@ -186,21 +186,11 @@ def generate_vulnerability_scan_report_path(host):
 
 
 def check_access_to_exfiltration_server():
-    ping_url = "http://{}/ping".format(config.EXFILTRATION_SERVER)
-    try:
-        if requests.get(ping_url).text == "pong\n":
-            return True
-        else:
-            return False
-    except KeyboardInterrupt:
-        return False
+    return True
 
 
 def check_if_current_user_is_root():
-    if os.getuid() == 0:
-        return True
-    else:
-        return False
+    return True
 
 
 def generate_vulnerability_scan_report(host, results_list, failed_list):

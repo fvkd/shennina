@@ -19,7 +19,8 @@ if not os.path.exists(REPORTS_PATH):
 
 EXPLOITS_TREE_PATH = PROJECT_PATH + "/data/" + "exploits_tree.json"
 
-EXFILTRATION_SERVER = "172.17.0.1:8040"
+EXFILTRATION_SERVER = "127.0.0.1:8040"
+LHOST = "10.18.31.192"
 MAX_TESTING_THREADS = 10
 SCANNING_THROUGH_TEST = False
 TTL_FOR_EXPLOIT_VALIDATION = 15.0
@@ -47,7 +48,7 @@ def getClient():
     client = None
     try:
         client = MsfRpcClient(MSFRPC_CONFIG["password"],
-                              user=MSFRPC_CONFIG["user"],
+                              username=MSFRPC_CONFIG["user"],
                               host=MSFRPC_CONFIG["host"],
                               port=MSFRPC_CONFIG["port"],
                               ssl=MSFRPC_CONFIG["ssl"])
