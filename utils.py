@@ -299,6 +299,8 @@ def load_file(filename):
 
 
 def check_if_exploit_is_in_exploits_tree(exploit):
+    if config.EXPLOITS_SET:
+        return exploit in config.EXPLOITS_SET
     for _ in config.EXPLOITS_TREE:
         if _["exploit"] == exploit:
             return True

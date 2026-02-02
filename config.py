@@ -35,6 +35,7 @@ CACHED_SEARCH_RESULTS = {}
 # Exploits Tree & Array
 EXPLOITS_TREE = []
 EXPLOITS_ARRAY = []
+EXPLOITS_SET = set()
 
 
 
