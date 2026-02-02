@@ -75,7 +75,7 @@ def load_exploitation_result(host):
 
 def get_successful_ports(host):
     result = load_exploitation_result(host)
-    return len(list(set([i['port'] for i in result['results']])))
+    return len({i['port'] for i in result['results']})
 
 
 def get_exploit_and_port_reward(host, exploit, port):
