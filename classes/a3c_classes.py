@@ -343,7 +343,7 @@ class Worker(threading.Thread):
         reward_sum = 0.
         # Get discounted rewards
         discounted_rewards = []
-        for reward in memory.rewards[::-1]:  # reverse buffer r
+        for reward in reversed(memory.rewards):  # reverse buffer r
             reward_sum = reward + gamma * reward_sum
             discounted_rewards.append(reward_sum)
         discounted_rewards.reverse()
