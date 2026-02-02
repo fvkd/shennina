@@ -200,11 +200,16 @@ class MasterAgent():
         state = env.reset(input_data)
         reward_sum = 0
         p, _ = model.predict(state)
-        prob = []
-        for ind in range(len(exploits_array)):
-            action = utils.get_value(exploits_array, ind)
-            prob.append([action, p[0][ind]])
-        prob.sort(key=lambda s: -s[1])
+        # Optimization: Avoid loop and repeated get_value calls.
+        # Note: utils.get_value(arr, 0) returns arr[-1] (last element),
+        # utils.get_value(arr, 1) returns arr[0], and so on.
+        # We shift the exploits_array to match this behavior.
+        if len(exploits_array) > 0:
+            shifted_exploits = [exploits_array[-1]] + exploits_array[:-1]
+            prob = list(zip(shifted_exploits, p[0]))
+            prob.sort(key=lambda s: -s[1])
+        else:
+            prob = []
         for i in prob[:20]:
             action = i[0]
             if scan_cluster.post_process_exploit_suggestion(port, result["osname"], data["name"], action):
