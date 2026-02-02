@@ -67,6 +67,7 @@ def run_exploit_alpha(rhost, exploit_name, port, attempt_to_upgrade_shell=False,
         result["meterpreter_session_id"] = None
 
     if result["result"] and close_session_after_detection:
+        client = config.getClient()
         try:
             #TODO: Debug
             client.sessions.session(result["session_id"]).stop()
