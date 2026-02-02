@@ -35,8 +35,6 @@ ST_SERV_NAME = 0  # Product name on Port.
 NUM_STATES = 1    # Size of state.
 TOTAL_EPS = 1000  # Number of episodes
 NUM_WORKERS = 1   # Number of workers
-OS_LIST = config.OS_LIST.split("@")
-SERVICE_LIST = config.SERVICE_LIST.split("@")
 exploits_array = []
 global_episode = 0
 
@@ -73,15 +71,17 @@ class Environment():
     def __init__(self, name):
         self.host = name
         self.state = []
+        self.os_list = config.get_os_list()
+        self.service_list = config.get_service_list()
 
     def normalization(self, target_idx):
         if target_idx == ST_OS_TYPE:
             os_num = int(self.state[ST_OS_TYPE])
-            os_num_mean = len(OS_LIST) / 2.0
+            os_num_mean = len(self.os_list) / 2.0
             self.state[ST_OS_TYPE] = (os_num - os_num_mean) / os_num_mean
         if target_idx == ST_SERV_NAME:
             service_num = self.state[ST_SERV_NAME]
-            service_num_mean = len(SERVICE_LIST) / 2.0
+            service_num_mean = len(self.service_list) / 2.0
             self.state[ST_SERV_NAME] = (
                 service_num - service_num_mean) / service_num_mean
 
@@ -100,12 +100,12 @@ class Environment():
         self.state = []
         # Set os type to state.
         # os = input_data["platform"] or ""
-        # self.state.insert(ST_OS_TYPE, utils.get_index(OS_LIST, os.lower()))
+        # self.state.insert(ST_OS_TYPE, utils.get_index(self.os_list, os.lower()))
         # self.normalization(ST_OS_TYPE)
         # Get product name.
         service_name = input_data['name'].replace(" ", "") or ""
         self.state.insert(ST_SERV_NAME, utils.get_index(
-            SERVICE_LIST, service_name.lower()))
+            self.service_list, service_name.lower()))
         # self.normalization(ST_SERV_NAME)
         return np.asarray(self.state)
 
@@ -114,13 +114,13 @@ class Environment():
         self.state = []
         # os = details['platform'] or ""
         # Set os type to state.
-        # self.state.insert(ST_OS_TYPE, utils.get_index(OS_LIST, os.lower()))
+        # self.state.insert(ST_OS_TYPE, utils.get_index(self.os_list, os.lower()))
         # Get product name.
 
         # self.normalization(ST_OS_TYPE)
         service_name = details['name'].replace(" ", "")
         self.state.insert(ST_SERV_NAME, utils.get_index(
-            SERVICE_LIST, service_name.lower()))
+            self.service_list, service_name.lower()))
         # self.normalization(ST_SERV_NAME)
         return np.asarray(self.state)
 
