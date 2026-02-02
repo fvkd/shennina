@@ -190,6 +190,11 @@ def check_access_to_exfiltration_server():
 
 
 def check_if_current_user_is_root():
+    if hasattr(os, "geteuid"):
+        if os.geteuid() != 0:
+            PPrint().error("Warning: Not running as root. Some scans (like Nmap OS detection) might fail.")
+            # Return True to allow continuation, as we want to support non-root Termux
+            return True
     return True
 
 

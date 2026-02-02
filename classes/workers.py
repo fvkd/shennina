@@ -14,7 +14,10 @@ import config
 import service_scan
 import scan_cluster
 import msf_wrapper
-import a3c_classes
+try:
+    import a3c_classes
+except ImportError:
+    a3c_classes = None
 import second_mode
 
 
@@ -30,6 +33,9 @@ def get_secondary_options(scan_results):
 
 def get_recommended_exploit(scan_results, target):
     scan_results = utils.load_scan(target)
+    if a3c_classes is None:
+        PPrint().error("AI modules not loaded (TensorFlow missing?). Cannot recommend exploits.")
+        return []
     master = a3c_classes.MasterAgent(target)
     exploits = master.play(scan_results)
     return exploits
