@@ -26,16 +26,23 @@ class MemoryModel(object):
 
     def init_brain(self, result={}):
         exploit_data = pd.read_csv(config.SUPERVISOD_CSV_FILE)
-        for _, row in exploit_data.iterrows():
-            service_name = row['service'].lower().replace(" ", "")
-            exploit_name = row['exploit']
-            if service_name in result.keys():
+
+        # Optimize: Normalize service names using vectorized string operations
+        exploit_data['service'] = exploit_data['service'].str.lower().str.replace(" ", "")
+
+        # Group by service and exploit to count occurrences efficiently
+        counts = exploit_data.groupby(['service', 'exploit']).size()
+
+        # Iterate over the aggregated counts to update the result dictionary
+        for (service_name, exploit_name), count in counts.items():
+            if service_name in result:
                 if exploit_name in result[service_name]:
-                    result[service_name][exploit_name] = result[service_name][exploit_name] + 1
+                    result[service_name][exploit_name] += count
                 else:
-                    result[service_name][exploit_name] = 1
+                    result[service_name][exploit_name] = count
             else:
-                result[service_name] = {exploit_name: 1}
+                result[service_name] = {exploit_name: count}
+
         self.save(result)
         return result
 
