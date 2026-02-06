@@ -43,17 +43,29 @@ def execute_load_stdapi_on_meterpreter_session(session_id):
 def execute_meterpreter_post_module(session_id, module_name):
     client = config.getClient()
     cid = client.consoles.console().cid
-    # cmd = 'sessions -i {session_id} -c \"{module_name}\" \n\n'.format(session_id=session_id, module_name=module_name)
-    # The response of on-the-fly running of Post exploitation module seems to be buggy/unstable.
-    # Runnning the module directly is more reliable.
     cmd = 'use {module_name} \n\n'.format(module_name=module_name)
     cmd += 'set SESSION {session_id} \n\n'.format(session_id=session_id)
     cmd += 'run \n\n'
     client.consoles.console(cid).write(cmd)
-    time.sleep(5)
-    resp = client.consoles.console(cid).read()["data"]
+
+    # Allow time for the command to be picked up and execution to start
+    time.sleep(1)
+
+    output = ""
+    max_attempts = 60
+    attempts = 0
+    while attempts < max_attempts:
+        resp = client.consoles.console(cid).read()
+        output += resp.get("data", "")
+
+        if resp.get("busy") is False:
+            break
+
+        time.sleep(1)
+        attempts += 1
+
     client.consoles.console(cid).destroy()
-    return resp
+    return output
 
 
 def execute_command_on_shell(session_id, command):
