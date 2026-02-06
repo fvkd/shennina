@@ -25,10 +25,6 @@ MAX_TESTING_THREADS = 10
 SCANNING_THROUGH_TEST = False
 TTL_FOR_EXPLOIT_VALIDATION = 15.0
 
-# TODO: remove these lines and use config.EXPLOITS_TREE instead
-SERVICE_LIST = 'openssh@dav@login@rpc@php@joomla@http@rmiregistry@krb524@x11@java@bind@domain@tcpwrapped@drupal@postfix@apache@vsftpd@proftpd@telnet@irc@jetty@nginx@unix@tikiwiki@postgresql@ftp@ajp13@vnc@smtp@sambasmbd@upnp@ldap@mysql@phpbb@ubuntu@webmin@samba@oscommerce@ms-wbt-server@exec@rpcbind@moodle@mediawiki@python@phpmyadmin@shell@wordpress@ssh@sugarcrm@netbios-ssn@tomcat@linuxtelnetd'
-OS_LIST = 'fortinet@windows@unix@solaris@osx@netware@linux@irix@hpux@freebsd@firefox@dialup@bsdi@apple_ios@android@aix@unknown'
-
 # Cache Search Results
 CACHED_SEARCH_RESULTS = {}
 
@@ -64,3 +60,32 @@ def loadExploitsTree(detailed=True):
     if detailed:
         return exploits_tree
     return [_['exploit'] for _ in exploits_tree]
+
+
+def get_exploits_tree():
+    global EXPLOITS_TREE
+    if not EXPLOITS_TREE and os.path.exists(EXPLOITS_TREE_PATH):
+        EXPLOITS_TREE = loadExploitsTree()
+    return EXPLOITS_TREE
+
+
+def get_os_list():
+    tree = get_exploits_tree()
+    os_set = set()
+    for exploit_entry in tree:
+        exploit_path = exploit_entry.get('exploit', '')
+        parts = exploit_path.split('/')
+        if parts:
+            os_set.add(parts[0])
+    return sorted(list(os_set))
+
+
+def get_service_list():
+    tree = get_exploits_tree()
+    service_set = set()
+    for exploit_entry in tree:
+        exploit_path = exploit_entry.get('exploit', '')
+        parts = exploit_path.split('/')
+        if len(parts) >= 3:
+            service_set.add(parts[1])
+    return sorted(list(service_set))
