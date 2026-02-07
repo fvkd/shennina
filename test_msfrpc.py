@@ -3,9 +3,15 @@ import json
 import os
 import traceback
 
-PROJECT_PATH = "/home/getfucked/projects/shennina"
-MSFRPC_CONFIG = open(PROJECT_PATH + "/config/" + "msfrpc-config.json")
-MSFRPC_CONFIG = json.loads(MSFRPC_CONFIG.read())
+PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
+config_file_path = os.path.join(PROJECT_PATH, "config", "msfrpc-config.json")
+
+if not os.path.exists(config_file_path):
+    print(f"Error: Config file not found at {config_file_path}")
+    exit(1)
+
+with open(config_file_path) as f:
+    MSFRPC_CONFIG = json.load(f)
 
 print(f"Connecting to {MSFRPC_CONFIG['host']}:{MSFRPC_CONFIG['port']} as {MSFRPC_CONFIG['user']}...")
 try:

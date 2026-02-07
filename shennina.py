@@ -8,7 +8,10 @@ import itertools
 from utils import PPrint
 sys.path.append(config.PROJECT_PATH + "/classes/")
 import generate_exploits_tree
-import a3c_classes
+try:
+    import a3c_classes
+except ImportError:
+    a3c_classes = None
 import workers
 import msf_wrapper
 import msf_wrapper_alpha
@@ -85,7 +88,9 @@ def main():
     client = config.getClient()
     if client is None:
         PPrint().error("Error connecting to MSFRPC server.")
-        sys.exit(1)
+        if args.exploitation_mode or args.training_mode or args.initialize_exploits_tree:
+             sys.exit(1)
+        PPrint().info("Proceeding without MSF connection (some features will be disabled).")
 
     if not utils.check_access_to_exfiltration_server():
         PPrint().error("Unable to connect to exfiltration server.")
@@ -150,8 +155,9 @@ def main():
         config.CLIENTS = []
         for _ in range(config.MAX_TESTING_THREADS):
             client = config.getClient()
-            cid = client.consoles.console().cid
-            config.CLIENTS.append(client.consoles.console(cid))
+            if client:
+                cid = client.consoles.console().cid
+                config.CLIENTS.append(client.consoles.console(cid))
             time.sleep(0.5)
         config.CLIENTS_CYCLE = itertools.cycle(config.CLIENTS)
 
@@ -162,6 +168,9 @@ def main():
             PPrint().success("Service Scan finished at [{target}]".format(target=target))
 
         if args.training_mode or args.reinforcement_training_mode:
+            if a3c_classes is None:
+                PPrint().error("Cannot run training mode without AI modules (TensorFlow).")
+                continue
             results_list, failed_list = workers.scan_target(target, use_cached_service_scan=args.use_cached_service_scan)
             utils.save_exploitation_scan(target, results_list, failed_list)
             service_scan_results = utils.load_scan(target)

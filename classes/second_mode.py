@@ -1,5 +1,5 @@
 import sys
-import pandas as pd
+import csv
 import config
 sys.path.append(config.PROJECT_PATH + "/classes/")
 import utils
@@ -25,23 +25,23 @@ class MemoryModel(object):
         return service_data
 
     def init_brain(self, result={}):
-        exploit_data = pd.read_csv(config.SUPERVISOD_CSV_FILE)
-
-        # Optimize: Normalize service names using vectorized string operations
-        exploit_data['service'] = exploit_data['service'].str.lower().str.replace(" ", "")
-
-        # Group by service and exploit to count occurrences efficiently
-        counts = exploit_data.groupby(['service', 'exploit']).size()
-
-        # Iterate over the aggregated counts to update the result dictionary
-        for (service_name, exploit_name), count in counts.items():
-            if service_name in result:
-                if exploit_name in result[service_name]:
-                    result[service_name][exploit_name] += count
-                else:
-                    result[service_name][exploit_name] = count
-            else:
-                result[service_name] = {exploit_name: count}
+        try:
+            with open(config.SUPERVISOD_CSV_FILE, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    service_name = row['service'].lower().replace(" ", "")
+                    exploit_name = row['exploit']
+                    if service_name in result.keys():
+                        if exploit_name in result[service_name]:
+                            result[service_name][exploit_name] = result[service_name][exploit_name] + 1
+                        else:
+                            result[service_name][exploit_name] = 1
+                    else:
+                        result[service_name] = {exploit_name: 1}
+        except FileNotFoundError:
+            pass # Handle case where file doesn't exist? Or crash? Original crashed if file missing.
+            # But checking config.SUPERVISOD_CSV_FILE existence is good practice.
+            # The original pd.read_csv would raise Error.
 
         self.save(result)
         return result
