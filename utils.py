@@ -10,6 +10,9 @@ import uuid
 import requests
 import subprocess
 
+_exploitation_result_cache = {}
+CACHE_LIMIT = 100
+
 banner = """  ____  _                      _
  / ___|| |__   ___ _ __  _ __ (_)_ __   __ _
  \___ \| '_ \ / _ \ '_ \| '_ \| | '_ \ / _` |
@@ -67,15 +70,12 @@ def load_scan(host):
 
 
 def load_exploitation_result(host):
-    f = open(generate_exploitation_result_path(host), "r")
-    output = json.loads(f.read())
-    f.close()
-    return output
+    return load_exploitation_scan(host)
 
 
 def get_successful_ports(host):
     result = load_exploitation_result(host)
-    return len(list(set([i['port'] for i in result['results']])))
+    return len({i['port'] for i in result['results']})
 
 
 def get_exploit_and_port_reward(host, exploit, port):
@@ -279,6 +279,9 @@ def save_exploitation_scan(host, results_list, failed_list):
     f = open(output_path, "w")
     f.write(json.dumps(data, indent=4))
     f.close()
+    if len(_exploitation_result_cache) > CACHE_LIMIT:
+        _exploitation_result_cache.clear()
+    _exploitation_result_cache[host] = data
 
 
 def save_file(filename, json_result):
@@ -289,9 +292,14 @@ def save_file(filename, json_result):
 
 
 def load_exploitation_scan(host):
+    if host in _exploitation_result_cache:
+        return _exploitation_result_cache[host]
     f = open(generate_exploitation_scan(host), "r")
     output = json.loads(f.read())
     f.close()
+    if len(_exploitation_result_cache) > CACHE_LIMIT:
+        _exploitation_result_cache.clear()
+    _exploitation_result_cache[host] = output
     return output
 
 
@@ -304,6 +312,8 @@ def load_file(filename):
 
 
 def check_if_exploit_is_in_exploits_tree(exploit):
+    if config.EXPLOITS_SET:
+        return exploit in config.EXPLOITS_SET
     for _ in config.EXPLOITS_TREE:
         if _["exploit"] == exploit:
             return True

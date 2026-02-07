@@ -24,9 +24,11 @@ import second_mode
 def get_secondary_options(scan_results):
     memory = second_mode.MemoryModel()
     results = []
+    brain = memory.load_brain()
     for port in scan_results["ports"]:
         data = scan_results["service_details"][str(port)]
-        exploits = memory.play(data['product'])
+        product_key = data['product'].lower().replace(" ", "")
+        exploits = memory.get_prediction(brain, product_key)
         results.append([port, exploits])
     return results
 

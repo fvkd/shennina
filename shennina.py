@@ -105,6 +105,7 @@ def main():
         generate_exploits_tree.run()
     config.EXPLOITS_TREE = config.loadExploitsTree()
     config.EXPLOITS_ARRAY = config.loadExploitsTree(detailed=False)
+    config.EXPLOITS_SET = set(config.EXPLOITS_ARRAY)
 
     if not args.target:
         PPrint().error("Target not specified.")
