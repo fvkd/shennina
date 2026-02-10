@@ -29,7 +29,7 @@ TTL_FOR_EXPLOIT_VALIDATION = 15.0
 CACHED_SEARCH_RESULTS = {}
 
 # Exploits Tree & Array
-EXPLOITS_TREE = []
+EXPLOITS_TREE = {}
 EXPLOITS_ARRAY = []
 EXPLOITS_SET = set()
 
@@ -60,10 +60,10 @@ def getClient():
 
 def loadExploitsTree(detailed=True):
     if not os.path.exists(EXPLOITS_TREE_PATH):
-        return []
+        return {} if detailed else []
     exploits_tree = json.loads(open(EXPLOITS_TREE_PATH, "r").read())
     if detailed:
-        return exploits_tree
+        return {e['exploit']: e for e in exploits_tree}
     return [_['exploit'] for _ in exploits_tree]
 
 
@@ -77,7 +77,9 @@ def get_exploits_tree():
 def get_os_list():
     tree = get_exploits_tree()
     os_set = set()
-    for exploit_entry in tree:
+    # Handle both list (legacy) and dict (optimized) formats
+    entries = tree.values() if isinstance(tree, dict) else tree
+    for exploit_entry in entries:
         exploit_path = exploit_entry.get('exploit', '')
         parts = exploit_path.split('/')
         if parts:
@@ -88,7 +90,9 @@ def get_os_list():
 def get_service_list():
     tree = get_exploits_tree()
     service_set = set()
-    for exploit_entry in tree:
+    # Handle both list (legacy) and dict (optimized) formats
+    entries = tree.values() if isinstance(tree, dict) else tree
+    for exploit_entry in entries:
         exploit_path = exploit_entry.get('exploit', '')
         parts = exploit_path.split('/')
         if len(parts) >= 3:
