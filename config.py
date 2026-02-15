@@ -33,12 +33,19 @@ EXPLOITS_TREE = []
 EXPLOITS_ARRAY = []
 EXPLOITS_SET = set()
 
+# Cached MsfRpcClient instance
+_CLIENT = None
+
 
 
 
 
 # Functions
 def getClient():
+    global _CLIENT
+    if _CLIENT is not None:
+        return _CLIENT
+
     config_path = os.path.join(PROJECT_PATH, "config", "msfrpc-config.json")
     if not os.path.exists(config_path):
         return None
@@ -47,12 +54,12 @@ def getClient():
         with open(config_path) as f:
             MSFRPC_CONFIG = json.load(f)
 
-        client = MsfRpcClient(MSFRPC_CONFIG["password"],
-                              username=MSFRPC_CONFIG["user"],
-                              host=MSFRPC_CONFIG["host"],
-                              port=MSFRPC_CONFIG["port"],
-                              ssl=MSFRPC_CONFIG["ssl"])
-        return client
+        _CLIENT = MsfRpcClient(MSFRPC_CONFIG["password"],
+                               username=MSFRPC_CONFIG["user"],
+                               host=MSFRPC_CONFIG["host"],
+                               port=MSFRPC_CONFIG["port"],
+                               ssl=MSFRPC_CONFIG["ssl"])
+        return _CLIENT
     except Exception as e:
         print(f"Error connecting to MSF RPC: {e}")
         return None
