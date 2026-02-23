@@ -373,18 +373,8 @@ def scan_target(target, use_cached_service_scan=False):
     queue_results = queue.Queue()
     queue_failed_tests = queue.Queue()
 
-    workers_input = []
-    previous = 0
-    p = len(exploits_testing_list) // config.MAX_TESTING_THREADS
-    for _ in range(config.MAX_TESTING_THREADS + 1):
-        first = previous
-        last = previous + p
-        workers_input.append(exploits_testing_list[first:last])
-        previous = previous + p
-
-    if config.MAX_TESTING_THREADS >= len(exploits_testing_list):
-        workers_input = []  # Emptying the workers_input
-        workers_input.append(exploits_testing_list)
+    n = config.MAX_TESTING_THREADS
+    workers_input = [exploits_testing_list[i::n] for i in range(min(n, len(exploits_testing_list)))]
 
     threads_state = []
     for exploit_test in workers_input:
