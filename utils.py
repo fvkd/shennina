@@ -314,6 +314,8 @@ def load_file(filename):
 def check_if_exploit_is_in_exploits_tree(exploit):
     if config.EXPLOITS_SET:
         return exploit in config.EXPLOITS_SET
+    if isinstance(config.EXPLOITS_TREE, dict):
+        return exploit in config.EXPLOITS_TREE
     for _ in config.EXPLOITS_TREE:
         if _["exploit"] == exploit:
             return True
@@ -335,6 +337,8 @@ def get_exploit_details(exploit_name):
     if not exploit_name.startswith("exploit/"):
         exploit_name = "exploit/" + exploit_name
     exploit_name = exploit_name[8:]
+    if isinstance(config.EXPLOITS_TREE, dict):
+        return config.EXPLOITS_TREE.get(exploit_name)
     for exploit in config.EXPLOITS_TREE:
         if exploit["exploit"] == exploit_name:
             return exploit
